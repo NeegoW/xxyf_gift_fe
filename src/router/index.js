@@ -5,21 +5,74 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
+    component: HomeView,
+    meta: {
+      KeepAlive: true,
+      Auth: true
+    }
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    path: '/login',
+    name: 'login',
+    component: () => import('../views/LoginView.vue')
+  },
+  {
+    path: '/exLog',
+    name: 'exLog',
+    component: () => import('../views/ExLogView.vue'),
+    meta: {
+      Auth: true
+    }
+  },
+  {
+    path: '/exInfo',
+    name: 'exInfo',
+    component: () => import('../views/ExInfoView.vue'),
+    meta: {
+      Auth: true
+    }
+  },
+  {
+    path: '/goodInfo/:id',
+    name: 'goodInfo',
+    component: () => import('../views/GoodInfoView.vue'),
+    meta: {
+      Auth: true
+    }
+  },
+  {
+    path: '/orderInfo/:id',
+    name: 'orderInfo',
+    component: () => import('../views/OrderInfoView.vue'),
+    meta: {
+      Auth: true
+    }
+  },
+  {
+    path: '/addr/',
+    name: 'addr',
+    component: () => import('../views/AddrView.vue'),
+    meta: {
+      Auth: true
+    }
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
+})
+
+router.beforeEach((to, from) => {
+  console.log(to.meta)
+  if (to.meta.Auth && !localStorage.getItem('token')) {
+    console.log('to.meta')
+    // 此路由需要授权，请检查是否已登录
+    // 如果没有，则重定向到登录页面
+    return {
+      path: '/login'
+    }
+  }
 })
 
 export default router
