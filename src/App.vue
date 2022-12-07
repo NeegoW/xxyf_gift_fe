@@ -3,11 +3,12 @@
 </template>
 
 <script setup>
-// import { getWxCode } from '@/utils/wechat'
+import { getWxCode } from '@/utils/wechat'
 import { onMounted } from 'vue'
 
 onMounted(() => {
-  // getWxCode()
+  // TODO: 从微信获取code
+  getWxCode()
 })
 </script>
 

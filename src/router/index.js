@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import { getWxCode } from '@/utils/wechat'
 
 const routes = [
   {
@@ -64,9 +65,8 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from) => {
-  console.log(to.meta)
+  // TODO: 未登录时，跳转到登录页
   if (to.meta.Auth && !localStorage.getItem('token')) {
-    console.log('to.meta')
     // 此路由需要授权，请检查是否已登录
     // 如果没有，则重定向到登录页面
     return {
