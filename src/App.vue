@@ -1,16 +1,11 @@
 <template>
-  <router-view/>
+  <router-view v-slot="{ Component }">
+    <keep-alive>
+      <component :is="Component" :key="$route.name" v-if="$route.meta.keepAlive"/>
+    </keep-alive>
+    <component :is="Component" :key="$route.name" v-if="!$route.meta.keepAlive"/>
+  </router-view>
 </template>
-
-<script setup>
-import { getWxCode } from '@/utils/wechat'
-import { onMounted } from 'vue'
-
-onMounted(() => {
-  // TODO: 从微信获取code
-  getWxCode()
-})
-</script>
 
 <style lang="scss">
 * {
