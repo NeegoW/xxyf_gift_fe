@@ -3,8 +3,7 @@ import { ElMessage } from 'element-plus'
 
 const api = axios.create({
   // 设置请求的基础路径
-  // baseURL: process.env.VUE_APP_API_URL,
-  baseURL: 'https://xxw.xinxuanyf.com/index.php/custom/',
+  baseURL: process.env.VUE_APP_API_URL,
   // 设置超时时间
   timeout: 3000,
   headers: {

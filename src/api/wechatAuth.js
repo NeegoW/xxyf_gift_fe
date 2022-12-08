@@ -7,15 +7,15 @@ import api from '@/api/index'
  */
 export function jump2Auth (callbackUrl) {
   api({
-    url: '/api/wechat/auth',
+    url: '/wechat/auth',
     params: {
       redirect_url: callbackUrl
     }
-  }).then((authUrl) => {
+  }).then((res) => {
     if (process.env.NODE_ENV === 'development') {
       window.location.href = callbackUrl + '?code=test'
     } else {
-      window.location.href = authUrl
+      window.location.href = res.data
     }
   })
 }
@@ -26,11 +26,5 @@ export function jump2Auth (callbackUrl) {
  * @returns
  */
 export async function getUserInfo (code) {
-  return await api({
-    method: 'POST',
-    url: '/api/wechat/auth',
-    params: {
-      code
-    }
-  })
+  return await api.post('/wechat/auth', { code })
 }

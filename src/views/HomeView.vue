@@ -100,6 +100,7 @@ const toInfo = (id) => {
     params: { id: id }
   })
 }
+
 // banner图
 const bannerImgs = [
   require('../assets/img/index_banner/1.png'),

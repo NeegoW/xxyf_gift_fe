@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import { getWxCode } from '@/utils/wechat'
 
 const routes = [
   {
@@ -9,20 +8,23 @@ const routes = [
     component: HomeView,
     meta: {
       KeepAlive: true,
-      Auth: true
+      requiresAuth: true
     }
   },
   {
-    path: '/login',
-    name: 'login',
-    component: () => import('../views/LoginView.vue')
+    path: '/bind',
+    name: 'bind',
+    component: () => import('../views/BindView.vue'),
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/exLog',
     name: 'exLog',
     component: () => import('../views/ExLogView.vue'),
     meta: {
-      Auth: true
+      requiresAuth: true
     }
   },
   {
@@ -30,7 +32,7 @@ const routes = [
     name: 'exInfo',
     component: () => import('../views/ExInfoView.vue'),
     meta: {
-      Auth: true
+      requiresAuth: true
     }
   },
   {
@@ -38,7 +40,7 @@ const routes = [
     name: 'goodInfo',
     component: () => import('../views/GoodInfoView.vue'),
     meta: {
-      Auth: true
+      requiresAuth: true
     }
   },
   {
@@ -46,16 +48,21 @@ const routes = [
     name: 'orderInfo',
     component: () => import('../views/OrderInfoView.vue'),
     meta: {
-      Auth: true
+      requiresAuth: true
     }
   },
   {
-    path: '/addr/',
+    path: '/addr',
     name: 'addr',
     component: () => import('../views/AddrView.vue'),
     meta: {
-      Auth: true
+      requiresAuth: true
     }
+  },
+  {
+    path: '/wxAuth',
+    name: 'wxAuth',
+    component: () => import('../components/WxAuth.vue')
   }
 ]
 
@@ -65,12 +72,14 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from) => {
-  // TODO: 未登录时，跳转到登录页
-  if (to.meta.Auth && !localStorage.getItem('token')) {
+  const isAuth = localStorage.getItem('isAuth') === 'true'
+  if (!isAuth && to.name !== 'wxAuth') {
     // 此路由需要授权，请检查是否已登录
-    // 如果没有，则重定向到登录页面
+    // 如果没有，则重定向到授权页面,保存我们所在的位置，以便以后再来
     return {
-      path: '/login'
+      name: 'wxAuth',
+      // 保存我们所在的位置，以便以后再来
+      query: { from: to.fullPath }
     }
   }
 })
