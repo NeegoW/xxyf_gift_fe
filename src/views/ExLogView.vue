@@ -3,7 +3,7 @@
     兑换记录
   </InnerPageHeader>
   <section class="exLog">
-    <div class="item" v-if="info.info.id">
+    <div class="item" v-if="info.length">
       <el-row justify="space-between" class="title">
         <el-col :span="10">
           订单号：11114091327
@@ -25,7 +25,7 @@
         </el-col>
       </el-row>
     </div>
-    <el-empty v-if="!info.info.id" :image-size="200" description="暂无数据"/>
+    <el-empty v-if="!info.length" :image-size="200" description="暂无数据"/>
   </section>
 </template>
 
@@ -34,12 +34,12 @@ import InnerPageHeader from '@/components/InnerPageHeader'
 import { reactive, onBeforeMount } from 'vue'
 import api from '@/api'
 
-const info = reactive({ info: {} })
+const info = reactive([])
 
 onBeforeMount(async () => {
-  await api.get('/api/exLog').then(res => {
-    info.info = res.data
-    console.log(info.info)
+  await api.get('/api/ex_log').then(res => {
+    info.push(...res.data)
+    console.log(info)
   })
 })
 </script>
