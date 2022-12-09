@@ -16,7 +16,7 @@ const code = router.currentRoute.value.query.code
 if (code) {
   getUserInfo(code).then((res) => {
     // TODO 授权标识
-    localStorage.setItem('isAuth', 'true')
+    sessionStorage.setItem('isAuth', 'true')
     // 用replace方法替换当前路由，避免用户点击返回按钮时返回到授权页面
     router.replace({ path: '/' })
   })

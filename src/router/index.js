@@ -62,7 +62,10 @@ const routes = [
   {
     path: '/wxAuth',
     name: 'wxAuth',
-    component: () => import('../components/WxAuth.vue')
+    component: () => import('../components/WxAuth.vue'),
+    meta: {
+      requiresAuth: false
+    }
   }
 ]
 
@@ -72,8 +75,8 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from) => {
-  const isAuth = localStorage.getItem('isAuth') === 'true'
-  if (!isAuth && to.name !== 'wxAuth') {
+  const isAuth = sessionStorage.getItem('isAuth') === 'true'
+  if (!isAuth && to.meta.requiresAuth) {
     // 此路由需要授权，请检查是否已登录
     // 如果没有，则重定向到授权页面,保存我们所在的位置，以便以后再来
     return {
