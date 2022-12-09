@@ -11,9 +11,11 @@
           <el-row>
             <el-col class="item">
               <el-card body-style="{ padding: '8px'}">
-                <el-carousel id="carousel" indicator-position="none">
+                <el-carousel indicator-position="none">
                   <el-carousel-item v-for="item in bannerImgs" :key="item">
-                    <img style="width:100%;max-width: 100%;border-radius: 8px" :src="item" alt="banner">
+                    <img ref="banner"
+                         style="width:100%;max-width: 100%;border-radius: 8px"
+                         :src="item" alt="banner"/>
                   </el-carousel-item>
                 </el-carousel>
               </el-card>
@@ -23,7 +25,6 @@
                 <img
                   :src="v.show_img"
                   class="image"
-                  @load="setBannerHeight"
                 />
                 <div style="padding: .5rem">
               <span style="font-size: 1.2rem;color: #333333">
@@ -75,7 +76,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import BgImg from '@/components/BgImg'
@@ -124,19 +125,23 @@ const toCS = () => {
   window.open(url)
 }
 
+// img加载完成后设置轮播图高度
+const banner = ref(null)
 const setBHFlag = ref(false)
-// 设置轮播图外框高度
-const setBannerHeight = () => {
-  if (setBHFlag.value) return
-  setBHFlag.value = true
-  const imgs = document.getElementById('carousel').querySelectorAll('img')
-  const c = document.querySelector('.el-carousel__container')
-  const bannerHeightArr = []
-  imgs.forEach(v => {
-    bannerHeightArr.push(v.height)
-  })
-  c.style.height = Math.max(...bannerHeightArr) + 'px'
-}
+watch(banner, (val) => {
+  if (val) {
+    const bannerHeightArr = []
+    val.forEach(v => {
+      v.addEventListener('load', () => {
+        if (setBHFlag.value) return
+        setBHFlag.value = true
+        bannerHeightArr.push(v.offsetHeight)
+      })
+    })
+    const c = document.querySelector('.el-carousel__container')
+    c.style.height = Math.max(...bannerHeightArr) + 'px'
+  }
+})
 
 onMounted(async () => {
   // 获取packageList数据
