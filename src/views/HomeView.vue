@@ -15,7 +15,8 @@
                   <el-carousel-item v-for="item in bannerImgs" :key="item">
                     <img ref="banner"
                          style="width:100%;max-width: 100%;border-radius: 8px"
-                         :src="item" alt="banner"/>
+                         :src="item"
+                         alt="banner"/>
                   </el-carousel-item>
                 </el-carousel>
               </el-card>
@@ -110,6 +111,23 @@ const bannerImgs = [
   require('../assets/img/index_banner/4.png'),
   require('../assets/img/index_banner/5.png')
 ]
+const banner = reactive([])
+const maxH = ref(0)
+// 用定时器检测图片是否开始资源渲染
+watch(banner, (val) => {
+  const interval = setInterval(() => {
+    if (maxH.value) {
+      clearInterval(interval)
+      // 设置.el-carousel__container的高度
+      const c = document.querySelector('.el-carousel__container')
+      c.style.height = maxH.value + 'px'
+    } else {
+      // 计算val中图片的最大高度
+      maxH.value = Math.max(...val.map((v) => v.height))
+    }
+  }, 50)
+})
+
 // 列表
 const packageList = reactive([])
 // packageList中的奇数项放到ch1中，偶数项放到ch2中
@@ -124,24 +142,6 @@ const toCS = () => {
   const url = 'https://work.weixin.qq.com/kfid/kfcd4d3cef620aa8656'
   window.open(url)
 }
-
-// img加载完成后设置轮播图高度
-const banner = ref(null)
-const setBHFlag = ref(false)
-watch(banner, (val) => {
-  if (val) {
-    const bannerHeightArr = []
-    val.forEach(v => {
-      v.addEventListener('load', () => {
-        if (setBHFlag.value) return
-        setBHFlag.value = true
-        bannerHeightArr.push(v.offsetHeight)
-      })
-    })
-    const c = document.querySelector('.el-carousel__container')
-    c.style.height = Math.max(...bannerHeightArr) + 'px'
-  }
-})
 
 onMounted(async () => {
   // 获取packageList数据

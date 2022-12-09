@@ -101,7 +101,6 @@ const validity = '1970-01-01 08:00:00'
 .desc {
   width: 95%;
   background: {
-    size: contain;
     image: url('@/assets/img/ex_info/特别说明背景.png');
     repeat: round;
   };
