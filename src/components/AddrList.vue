@@ -29,6 +29,7 @@
       </div>
     </el-row>
   </div>
+  <el-empty v-if="!props.contact.length" :image-size="200" description="暂无数据"/>
 </template>
 
 <script setup>
@@ -41,7 +42,7 @@ const props = defineProps({
     required: true
   }
 })
-const checkRadio = ref(props.contact[0].id)
+const checkRadio = ref(props.contact[0]?.id)
 
 const delAddr = () => {
   console.log('delAddr')
