@@ -7,7 +7,7 @@ const routes = [
     name: 'home',
     component: HomeView,
     meta: {
-      KeepAlive: true,
+      keepAlive: true,
       requiresAuth: true
     }
   },
