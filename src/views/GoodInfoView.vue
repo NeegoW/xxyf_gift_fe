@@ -101,8 +101,10 @@ const router = useRouter()
 const packageId = router.currentRoute.value.params.id
 const info = ref({})
 
+// 获取用户信息
+const userInfo = reactive(JSON.parse(sessionStorage.getItem('userInfo')))
 // 获取卡券信息
-const cardInfo = reactive(JSON.parse(sessionStorage.getItem('userInfo'))?.card_info)
+const cardInfo = userInfo.card_info
 // 余额
 const balance = ref(cardInfo?.Active?.balance)
 // 差价
@@ -134,10 +136,37 @@ const doEx = () => {
       cancelButtonText: '取消'
     }
   ).then(() => {
-    ElMessage({
-      message: '兑换成功，快去查看吧！',
-      duration: 1500,
-      type: 'success'
+    // 兑换
+    api.post('/api/order', {
+      openid: userInfo.openid,
+      unionid: userInfo.unionid,
+      order_amount: info.value.selling_price,
+      pay_type: exPay.value > 0,
+      pay_card: {
+        code: cardInfo.code,
+        amount: balance.value > info.value.selling_price ? info.value.selling_price : balance.value
+      },
+      pay_wechat: exPay.value > 0 ? exPay.value : null,
+      receiver_name: address.name,
+      receiver_phone: address.tel,
+      receiver_province: address.province,
+      receiver_city: address.city,
+      receiver_county: address.county,
+      receiver_town: address.town,
+      receiver_address: address.address,
+      Item: {
+        product_id: info.value.id,
+        product_pic: info.value.show_img,
+        product_name: info.value.name,
+        product_price: info.value.selling_price
+      }
+    }).then(res => {
+      // 更新用户信息
+      sessionStorage.setItem('userInfo', JSON.stringify(res.data))
+      // 跳转到兑换记录
+      ElMessage.success('兑换成功')
+    }).catch(err => {
+      console.log(err)
     })
   }).catch(() => {
     console.log('取消')
@@ -146,12 +175,9 @@ const doEx = () => {
 
 watch(() => info.value, (val) => {
   // 计算差价，如果余额不足，使用微信支付补差价
-  // val?.selling_price
-  diff.value = (balance.value - 1100.88).toFixed(2)
+  diff.value = (balance.value - val?.selling_price).toFixed(2)
   exPay.value = Math.abs(diff.value)
   tip.value = diff.value < 0 ? `卡券剩余不足，使用微信支付${exPay.value}，确认兑换吗` : `卡券剩余${balance.value}，确认兑换吗？`
-  console.log(diff.value)
-  console.log(tip.value)
 })
 
 onMounted(async () => {
