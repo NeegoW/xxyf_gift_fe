@@ -74,15 +74,22 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from) => {
+router.beforeEach((to, from, next) => {
   const isAuth = sessionStorage.getItem('isAuth') === 'true'
+  const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
+  const cardInfo = userInfo?.card_info
   if (!isAuth && to.meta.requiresAuth) {
-    // 此路由需要授权，请检查是否已登录
-    // 如果没有，则重定向到授权页面,保存我们所在的位置，以便以后再来
-    return {
-      name: 'wxAuth',
-      // 保存我们所在的位置，以便以后再来
-      query: { from: to.fullPath }
+    next({ name: 'wxAuth' })
+  } else {
+    if (isAuth && to.name === 'wxAuth') {
+      // 已经登录了，就不要再去授权页面了
+      if (cardInfo) {
+        next({ name: 'home' })
+      } else {
+        next({ name: 'bind' })
+      }
+    } else {
+      next()
     }
   }
 })

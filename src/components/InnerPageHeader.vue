@@ -1,13 +1,14 @@
 <template>
   <el-header>
     <el-col>
-      <el-row align="middle">
-        <el-col class="icon" :span="2" @click="router.back()" id="back">
-          <ArrowLeft style="width: 1.2rem"/>
+      <el-row justify="space-between" align="middle">
+        <el-col class="icon" :span="4" @click="router.back()" id="back">
+          <ArrowLeft style="width: 40rem"/>
         </el-col>
-        <el-col :span="20">
+        <el-col :span="10">
           <slot></slot>
         </el-col>
+        <el-col :span="4"></el-col>
       </el-row>
     </el-col>
   </el-header>
@@ -25,9 +26,11 @@ const router = useRouter()
   background: #C51829;
   color: #FFFFFF;
   text-align: center;
-  font-size: 1.2rem;
+  font-size: 28rem;
+  line-height: 40rem;
   display: flex;
   align-items: center;
+  height: 80rem;
 
   .icon {
     display: flex;

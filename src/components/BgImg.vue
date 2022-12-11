@@ -21,7 +21,7 @@ const bgImg = require('../assets/img/bg_img/bg_02.png')
   }
 
   .body {
-    width: 95vw;
+    width: 700rem;
     margin: auto;
     height: auto;
   }

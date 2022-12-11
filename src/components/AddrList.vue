@@ -3,30 +3,32 @@
        v-for="(v, k) in props.contact"
        :key="k"
   >
-    <el-row class="nav">
-      <b>{{ v.name }}</b>
-      <span>{{ v.phone }}</span>
-    </el-row>
-    <el-row class="ctx">
-      {{ v.addr }}
-    </el-row>
+    <el-col @click="chooseAddress(v)">
+      <el-row class="nav">
+        <b>{{ v.name }}</b>
+        <span>{{ v.tel }}</span>
+      </el-row>
+      <el-row class="ctx">
+        <el-col>{{ v.province + v.city + v.county + v.town + v.address }}</el-col>
+      </el-row>
+    </el-col>
     <el-divider/>
     <el-row class="footer" justify="space-between">
-      <el-radio v-model="checkRadio" class="def" :label="k">设为默认</el-radio>
-      <div>
-        <el-button link type="">
+      <el-radio v-model="checkRadio" class="def" :label="v.id">设为默认</el-radio>
+      <el-row>
+        <el-button link type="" @click="emit('edit:contact',v)">
           <el-icon>
             <Edit/>
           </el-icon>
           <span>编辑</span>
         </el-button>
-        <el-button link type="" @click="delAddr">
+        <el-button link type="" @click="delAddr(v.id)">
           <el-icon>
             <Delete/>
           </el-icon>
           <span>删除</span>
         </el-button>
-      </div>
+      </el-row>
     </el-row>
   </div>
   <el-empty v-if="!props.contact.length" :image-size="200" description="暂无数据"/>
@@ -34,7 +36,9 @@
 
 <script setup>
 import { Edit, Delete } from '@element-plus/icons-vue'
-import { ref } from 'vue'
+import { onUpdated, ref, watch } from 'vue'
+import api from '@/api'
+import router from '@/router'
 
 const props = defineProps({
   contact: {
@@ -42,50 +46,88 @@ const props = defineProps({
     required: true
   }
 })
-const checkRadio = ref(props.contact[0]?.id)
+const emit = defineEmits(['edit:contact', 'del:contact'])
 
-const delAddr = () => {
-  console.log('delAddr')
+const checkRadio = ref(null)
+
+const changeDefault = async (val) => {
+  const unionid = JSON.parse(sessionStorage.getItem('userInfo')).unionid
+  await api.put('api/change_def_addr', {
+    id: val,
+    unionid: unionid
+  }).then(res => {
+    console.log(res)
+  })
 }
+
+// 删除地址
+const doDel = ref(false)
+const delAddr = async (id) => {
+  if (doDel.value) return
+  doDel.value = true
+  await api.delete('api/user_address?id=' + id).then(res => {
+    if (res.code === 200) {
+      doDel.value = false
+      emit('del:contact', id)
+    }
+  })
+}
+
+// 选择该地址
+const chooseAddress = (v) => {
+  sessionStorage.setItem('contact_address', JSON.stringify(v))
+  router.go(-1)
+}
+
+watch(checkRadio, (val) => {
+  changeDefault(val)
+})
+
+onUpdated(() => {
+  // props.contact中status为1的id赋予checkRadio
+  checkRadio.value = props.contact.find(v => v.status === '1')?.id || null
+})
 </script>
 
 <style scoped lang="scss">
 .card {
-  width: 700px;
-  margin: 0 auto 22px;
+  width: 100%;
+  margin: 0 auto 22rem;
   background: #FFFFFF;
-  border-radius: 10px;
-  padding: 32px 28px;
+  border-radius: 10rem;
+  padding: 32rem 28rem;
 
   .nav {
     b {
-      font-size: 32px;
+      font-size: 32rem;
       color: #393A3B;
-      line-height: 36px;
+      line-height: 36rem;
     }
 
     span {
-      font-size: 26px;
+      font-size: 26rem;
       color: #848E9C;
+      margin-left: 30rem;
     }
   }
 
   .ctx {
-    font-size: 26px;
+    font-size: 26rem;
     color: #393A3B;
-    line-height: 36px;
+    line-height: 36rem;
+    margin-top: 28rem;
   }
 
   .footer {
     .el-icon, span {
-      font-size: 22px;
+      font-size: 22rem;
       color: #393A3B;
     }
 
     .def {
-      --el-radio-input-height: 22px;
-      --el-radio-input-width: 22px;
-      --el-radio-font-size: 22px;
+      --el-radio-input-height: 22rem;
+      --el-radio-input-width: 22rem;
+      --el-radio-font-size: 22rem;
       color: #848E9C;
     }
   }
@@ -102,20 +144,24 @@ const delAddr = () => {
 
   .el-radio__inner::after {
     content: "";
-    width: 12px;
-    height: 6px;
+    width: 12rem;
+    height: 6rem;
     border: 2px solid white;
     border-top: transparent;
     border-right: transparent;
     text-align: center;
     display: inline-block;
     position: absolute;
-    top: 4px;
-    left: 4px;
+    top: 4rem;
+    left: 4rem;
     vertical-align: middle;
     transform: rotate(-45deg);
-    border-radius: 0px;
+    border-radius: 0rem;
     background: none;
+  }
+
+  .el-empty__description p {
+    font-size: 28rem;
   }
 }
 </style>

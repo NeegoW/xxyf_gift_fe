@@ -1,6 +1,6 @@
 <template>
   <BgImg>
-    <div class="box-card">
+    <section class="bind">
       <el-card>
         <el-form
           ref="formRef"
@@ -24,12 +24,12 @@
             </template>
             <el-input type="tel" v-model.number="form.pwd" placeholder="请输入提货券密码" maxlength="8"></el-input>
           </el-form-item>
-          <el-form-item style="justify-content: center">
+          <el-form-item>
             <el-button id="login-btn" @click="submitForm(formRef)">登录</el-button>
           </el-form-item>
         </el-form>
       </el-card>
-    </div>
+    </section>
   </BgImg>
 </template>
 
@@ -45,7 +45,8 @@ const router = useRouter()
 const formRef = ref()
 const form = reactive({
   code: '1234000',
-  pwd: '8273601'
+  pwd: '8273601',
+  user_id: JSON.parse(sessionStorage.getItem('userInfo')).id
 })
 const rules = {
   code: [
@@ -86,8 +87,6 @@ const submitForm = async (formEl) => {
           router.push('/')
           console.log(res.data)
         }
-      }).catch(err => {
-        console.log(err)
       })
     } else {
       return false
@@ -97,66 +96,63 @@ const submitForm = async (formEl) => {
 </script>
 
 <style lang="scss">
-.box-card {
+.bind {
 
   .el-card {
-    border-radius: .5rem;
-  }
-}
-
-.el-form-item {
-  border-bottom: 1px solid #dcdfe6;
-  width: 90%;
-  margin: 2rem auto;
-
-  // 登录框的父元素
-  &:last-child {
-    border-bottom: none;
+    border-radius: 10rem;
   }
 
-  // input框前的icon
-  .el-form-item__label {
-    height: auto;
+  .el-form-item {
+    border-bottom: 1px solid #dcdfe6;
+    margin: 60rem;
+    align-items: center;
 
-    .el-icon {
-      font-size: 3rem;
-      color: #333333;
+    &:last-child {
+      width: 630rem;
+      margin: 20rem auto;
     }
-  }
 
-  // 验证时的报错信息
-  .el-form-item__error {
-    font-size: 1rem;
-  }
+    // 登录框的父元素
+    &:last-child {
+      border-bottom: none;
+    }
 
-  .el-input {
-    --el-input-height: 3rem;
+    // input框前的icon
+    .el-form-item__label {
+      height: auto;
 
-    // 取消input框的阴影
-    .el-input__wrapper {
-      box-shadow: none !important;
-
-      :focus {
-        box-shadow: none !important;
+      .el-icon {
+        font-size: 32rem;
+        color: #333333;
       }
     }
 
-    // input框
-    .el-input__inner {
-      font-size: 1.5rem;
+    .el-input {
+      // 取消input框的阴影
+      .el-input__wrapper {
+        box-shadow: none !important;
+
+        :focus {
+          box-shadow: none !important;
+        }
+      }
+
+      .el-input__inner {
+        font-size: 32rem;
+        line-height: 40rem;
+      }
     }
   }
 
-}
-
-#login-btn {
-  width: 100%;
-  height: 4rem;
-  background-color: #c41829;
-  color: #f7f2d9;
-  font-size: 1.5rem;
-  font-weight: 500;
-  border-radius: 3rem;
-  margin-top: 2rem;
+  #login-btn {
+    width: 100%;
+    height: 64rem;
+    background-color: #c41829;
+    color: #f7f2d9;
+    font-size: 32rem;
+    line-height: 64rem;
+    font-weight: 500;
+    border-radius: 32rem;
+  }
 }
 </style>

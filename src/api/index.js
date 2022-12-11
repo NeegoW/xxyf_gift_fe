@@ -8,8 +8,7 @@ const api = axios.create({
   timeout: 3000,
   headers: {
     // 设置请求头为form格式，utf-8编码
-    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-    'X-Requested-With': 'XMLHttpRequest'
+    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
   }
 })
 
@@ -33,7 +32,7 @@ api.interceptors.response.use(
     if (response.data.code !== 200) {
       ElMessage({
         message: response.data.msg,
-        duration: 3 * 1000,
+        duration: 1500,
         type: 'error'
       })
       return Promise.reject(response.data.msg)

@@ -5,8 +5,8 @@ import api from '@/api/index'
  * @param callbackUrl 授权后回调链接
  * @returns
  */
-export function jump2Auth (callbackUrl) {
-  api({
+export async function jump2Auth (callbackUrl) {
+  await api({
     url: '/wechat/auth',
     params: {
       redirect_url: callbackUrl
