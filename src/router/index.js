@@ -79,7 +79,10 @@ router.beforeEach((to, from, next) => {
   const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
   const cardInfo = userInfo?.card_info
   if (!isAuth && to.meta.requiresAuth) {
-    next({ name: 'wxAuth' })
+    next({
+      name: 'wxAuth',
+      query: { from: to.fullPath }
+    })
   } else {
     if (isAuth && to.name === 'wxAuth') {
       // 已经登录了，就不要再去授权页面了

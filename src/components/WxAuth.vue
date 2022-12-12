@@ -18,10 +18,15 @@ if (code) {
     sessionStorage.setItem('isAuth', 'true')
     sessionStorage.setItem('userInfo', JSON.stringify(res.data))
     const address = res.data.user_address[0] || {}
+    const cardInfo = res.data.card_info || {}
     sessionStorage.setItem('contact_address', JSON.stringify(address))
     // 用replace方法替换当前路由，避免用户点击返回按钮时返回到授权页面
     const land = sessionStorage.getItem('fromPath') || '/'
-    router.replace({ path: land })
+    if (cardInfo.id) {
+      router.replace(land)
+    } else {
+      router.replace('/bind')
+    }
   })
 } else {
   // 1.跳转授权
