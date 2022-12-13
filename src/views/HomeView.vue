@@ -21,7 +21,15 @@
             </el-col>
             <el-col v-for="v in ch1" :key="v" class="item">
               <el-card :body-style="{ padding: '16rem' }">
-                <img :src="v.show_img" class="image" :alt="v.name"/>
+                <el-image :src="v.show_img">
+                  <template #placeholder>
+                    <div class="loading-slot">
+                      <el-icon>
+                        <icon-picture/>
+                      </el-icon>
+                    </div>
+                  </template>
+                </el-image>
                 <el-row class="item-name" justify="space-between">
                   <el-col :span="18">
                     {{ v.name }}
@@ -38,7 +46,15 @@
           <el-row>
             <el-col v-for="v in ch2" :key="v" class="item" @click="toInfo(v.id)">
               <el-card :body-style="{ padding: '16rem' }">
-                <img :src="v.show_img" class="image" :alt="v.name"/>
+                <el-image :src="v.show_img">
+                  <template #placeholder>
+                    <div class="loading-slot">
+                      <el-icon>
+                        <icon-picture/>
+                      </el-icon>
+                    </div>
+                  </template>
+                </el-image>
                 <el-row class="item-name" justify="space-between">
                   <el-col :span="18">
                     {{ v.name }}
@@ -59,6 +75,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { Picture as IconPicture } from '@element-plus/icons-vue'
 
 import BgImg from '@/components/BgImg'
 import HeadNav from '@/components/HeadNav'
@@ -169,6 +186,20 @@ onMounted(async () => {
           color: #C51829;
           font-size: 32rem;
         }
+      }
+    }
+
+    .loading-slot {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 300rem;
+      background: var(--el-fill-color-light);
+      color: var(--el-text-color-secondary);
+
+      .el-icon {
+        font-size: 30rem;
       }
     }
   }
