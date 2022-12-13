@@ -17,10 +17,10 @@
     </div>
     <div class="shadow">
       <p>{{ info?.name }}</p>
-<!--      <p>-->
-<!--        <img class="i-dou" src="../assets/img/index/豆.png">-->
-<!--        <span class="word-red">{{ info?.selling_price }}</span>-->
-<!--      </p>-->
+      <!--      <p>-->
+      <!--        <img class="i-dou" src="../assets/img/index/豆.png">-->
+      <!--        <span class="word-red">{{ info?.selling_price }}</span>-->
+      <!--      </p>-->
     </div>
     <div class="shadow">
       <el-row class="li" align="middle" justify="space-between">
@@ -75,7 +75,7 @@
 </template>
 
 <script setup>
-import { reactive, onMounted, computed, ref, nextTick, watch } from 'vue'
+import { reactive, onMounted, computed, ref, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import { Picture as IconPicture } from '@element-plus/icons-vue'
@@ -83,6 +83,7 @@ import { Picture as IconPicture } from '@element-plus/icons-vue'
 import InnerPageHeader from '@/components/InnerPageHeader.vue'
 import LoadingMask from '@/components/LoadingMask.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import onBridgeReady from '@/utils/wechatPay'
 
 const isLoading = ref(true)
 
@@ -102,17 +103,17 @@ const packageId = router.currentRoute.value.params.id
 const info = ref({})
 
 // 获取用户信息
-const userInfo = reactive(JSON.parse(sessionStorage.getItem('userInfo')))
+const userInfo = ref(JSON.parse(sessionStorage.getItem('userInfo')))
 // 获取卡券信息
-const cardInfo = userInfo.card_info
+const cardInfo = computed(() => userInfo.value.card_info)
 // 余额
-const balance = ref(cardInfo?.Active?.balance)
+const balance = computed(() => cardInfo.value.Active.balance)
 // 差价
-const diff = ref(0.00)
+const diff = computed(() => (balance.value - info.value.selling_price).toFixed(2))
 // 微信补差价
-const exPay = ref(0.00)
+const exPay = computed(() => diff.value < 0 ? Math.abs(diff.value) : 0)
 // 提示信息
-const tip = ref('')
+const tip = computed(() => diff.value < 0 ? `卡券剩余不足，使用微信支付${exPay.value}，确认兑换吗` : `卡券剩余${balance.value}，确认兑换吗？`)
 
 const toAddr = () => {
   router.push({
@@ -126,6 +127,33 @@ const toCS = () => {
   window.open(url)
 }
 
+// 微信支付成功回调
+function callBack (res) {
+  ElMessage.success({
+    message: res,
+    duration: 0
+  })
+}
+
+const doPay = async (openid, amount) => {
+  await api.get(`wechat/pay_info?openid=${openid}&amount=${amount}`).then(res => {
+    onBridgeReady(res.data, callBack)
+  })
+}
+
+// eslint-disable-next-line no-unused-vars
+const createOrder = async (data) => {
+  api.post('/api/order', data).then(res => {
+    // 更新用户信息
+    userInfo.value = res.data
+    sessionStorage.setItem('userInfo', JSON.stringify(res.data))
+    // 跳转到兑换记录
+    ElMessage.success('兑换成功')
+  }).catch(err => {
+    console.log(err)
+  })
+}
+
 // 兑换操作
 const doEx = () => {
   ElMessageBox.confirm(
@@ -136,17 +164,17 @@ const doEx = () => {
       cancelButtonText: '取消'
     }
   ).then(() => {
-    // 兑换
-    api.post('/api/order', {
-      openid: userInfo.openid,
-      unionid: userInfo.unionid,
+    // 整理数据
+    const data = {
+      openid: userInfo.value.openid,
+      unionid: userInfo.value.unionid,
       order_amount: info.value.selling_price,
       pay_type: exPay.value > 0,
       pay_card: {
-        code: cardInfo.code,
+        code: cardInfo.value.code,
         amount: balance.value > info.value.selling_price ? info.value.selling_price : balance.value
       },
-      pay_wechat: diff.value > 0 ? null : exPay.value,
+      pay_wechat: exPay.value > 0 ? exPay.value : null,
       receiver_name: address.name,
       receiver_phone: address.tel,
       receiver_province: address.province,
@@ -160,25 +188,20 @@ const doEx = () => {
         product_name: info.value.name,
         product_price: info.value.selling_price
       }
-    }).then(res => {
-      // 更新用户信息
-      sessionStorage.setItem('userInfo', JSON.stringify(res.data))
-      // 跳转到兑换记录
-      ElMessage.success('兑换成功')
-    }).catch(err => {
-      console.log(err)
-    })
+    }
+    console.log(data)
+    // 兑换
+    console.log(exPay.value)
+    if (exPay.value > 0) {
+      doPay(userInfo.value.openid, exPay.value)
+    } else {
+      console.log('有余额')
+      createOrder(data)
+    }
   }).catch(() => {
-    console.log('取消')
+    console.log('点了取消')
   })
 }
-
-watch(() => info.value, (val) => {
-  // 计算差价，如果余额不足，使用微信支付补差价
-  diff.value = (balance.value - val?.selling_price).toFixed(2)
-  exPay.value = Math.abs(diff.value)
-  tip.value = diff.value < 0 ? `卡券剩余不足，使用微信支付${exPay.value}，确认兑换吗` : `卡券剩余${balance.value}，确认兑换吗？`
-})
 
 onMounted(async () => {
   // 获取商品详情数据
