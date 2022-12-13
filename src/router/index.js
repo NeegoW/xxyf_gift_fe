@@ -28,9 +28,9 @@ const routes = [
     }
   },
   {
-    path: '/exInfo',
-    name: 'exInfo',
-    component: () => import('../views/ExInfoView.vue'),
+    path: '/exManual',
+    name: 'exManual',
+    component: () => import('../views/ExManualView.vue'),
     meta: {
       requiresAuth: true
     }
@@ -79,22 +79,24 @@ router.beforeEach((to, from, next) => {
   const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
   const cardInfo = userInfo?.card_info
   if (!isAuth && to.meta.requiresAuth) {
+    // 没授权就只能去授权
+    console.log('000')
     next({
       name: 'wxAuth',
       query: { from: to.fullPath }
     })
-  } else {
-    if (isAuth && to.name === 'wxAuth') {
-      // 已经登录了，就不要再去授权页面了
-      if (cardInfo) {
-        next({ name: 'home' })
-      } else {
-        next({ name: 'bind' })
-      }
-    } else {
-      next()
-    }
+  } else if (!isAuth && !to.meta.requiresAuth) {
+    next()
   }
+
+  // 已授权没绑定去绑定
+  if (isAuth && !cardInfo && to.name !== 'bind') {
+    next({
+      name: 'bind'
+    })
+  }
+
+  next()
 })
 
 export default router

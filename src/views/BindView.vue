@@ -44,8 +44,8 @@ import api from '@/api'
 const router = useRouter()
 const formRef = ref()
 const form = reactive({
-  code: '1234000',
-  pwd: '8273601',
+  code: '',
+  pwd: '',
   user_id: JSON.parse(sessionStorage.getItem('userInfo')).id
 })
 const rules = {
@@ -84,8 +84,13 @@ const submitForm = async (formEl) => {
     if (valid) {
       api.post('/api/bind', form).then(res => {
         if (res.data) {
-          router.push('/')
-          console.log(res.data)
+          // 将data.res追加到sessionStorage中userInfo的cardInfo中
+          const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
+          // TODO : 将来多卡绑定时，需要将cardInfo改为数组
+          userInfo.card_info = res.data
+          sessionStorage.setItem('userInfo', JSON.stringify(userInfo))
+          console.log(sessionStorage.getItem('userInfo'))
+          router.replace('/')
         }
       })
     } else {
