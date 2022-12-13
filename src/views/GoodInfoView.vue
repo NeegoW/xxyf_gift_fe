@@ -16,11 +16,11 @@
       </el-image>
     </div>
     <div class="shadow">
-      <p>{{ info?.alias || info?.name }}</p>
-      <p>
-        <img class="i-dou" src="../assets/img/index/豆.png">
-        <span class="word-red">{{ info?.selling_price }}</span>
-      </p>
+      <p>{{ info?.name }}</p>
+<!--      <p>-->
+<!--        <img class="i-dou" src="../assets/img/index/豆.png">-->
+<!--        <span class="word-red">{{ info?.selling_price }}</span>-->
+<!--      </p>-->
     </div>
     <div class="shadow">
       <el-row class="li" align="middle" justify="space-between">
@@ -146,7 +146,7 @@ const doEx = () => {
         code: cardInfo.code,
         amount: balance.value > info.value.selling_price ? info.value.selling_price : balance.value
       },
-      pay_wechat: exPay.value > 0 ? exPay.value : null,
+      pay_wechat: diff.value > 0 ? null : exPay.value,
       receiver_name: address.name,
       receiver_phone: address.tel,
       receiver_province: address.province,

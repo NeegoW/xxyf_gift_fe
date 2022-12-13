@@ -22,39 +22,31 @@
             <el-col v-for="v in ch1" :key="v" class="item">
               <el-card :body-style="{ padding: '16rem' }">
                 <img :src="v.show_img" class="image" :alt="v.name"/>
-                <div>
-                  <span class="item-name">
+                <el-row class="item-name" justify="space-between">
+                  <el-col :span="18">
                     {{ v.name }}
-                  </span>
-                  <el-row class="a-i-bsl" justify="space-between">
-                    <el-col :span="18">
-                      <img class="i-dou" src="../assets/img/index/豆.png" alt="">
-                      <span class="item-price">{{ v.selling_price }}</span>
-                    </el-col>
+                  </el-col>
+                  <el-col :span="4">
                     <img @click="toInfo( v.id )" class="i-ex" src="../assets/img/index/兑换按钮.png" alt="">
-                  </el-row>
-                </div>
+                  </el-col>
+                </el-row>
               </el-card>
             </el-col>
           </el-row>
         </el-col>
         <el-col :span="12">
           <el-row>
-            <el-col v-for="v in ch2" :key="v" class="item">
+            <el-col v-for="v in ch2" :key="v" class="item" @click="toInfo(v.id)">
               <el-card :body-style="{ padding: '16rem' }">
                 <img :src="v.show_img" class="image" :alt="v.name"/>
-                <div>
-                  <span class="item-name">
+                <el-row class="item-name" justify="space-between">
+                  <el-col :span="18">
                     {{ v.name }}
-                  </span>
-                  <el-row class="a-i-bsl" justify="space-between">
-                    <el-col :span="18">
-                      <img class="i-dou" src="../assets/img/index/豆.png" alt="">
-                      <span class="item-price">{{ v.selling_price }}</span>
-                    </el-col>
+                  </el-col>
+                  <el-col :span="4">
                     <img @click="toInfo( v.id )" class="i-ex" src="../assets/img/index/兑换按钮.png" alt="">
-                  </el-row>
-                </div>
+                  </el-col>
+                </el-row>
               </el-card>
             </el-col>
           </el-row>
@@ -65,7 +57,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed, watch } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import BgImg from '@/components/BgImg'
@@ -101,21 +93,6 @@ const bannerImgs = [
   require('../assets/img/index_banner/5.png')
 ]
 const banner = reactive([])
-const maxH = ref(0)
-// 用定时器检测图片是否开始资源渲染
-watch(banner, (val) => {
-  const interval = setInterval(() => {
-    if (maxH.value) {
-      clearInterval(interval)
-      // 设置.el-carousel__container的高度
-      const c = document.querySelector('.el-carousel__container')
-      c.style.height = maxH.value + 'px'
-    } else {
-      // 计算val中图片的最大高度
-      maxH.value = Math.max(...val.map((v) => v.height))
-    }
-  }, 50)
-})
 
 // 列表
 const packageList = reactive([])
@@ -200,5 +177,11 @@ onMounted(async () => {
 .ofHidden {
   overflow: hidden;
   max-height: 100vh;
+}
+</style>
+
+<style lang="scss">
+.el-carousel__container {
+  height: 350rem;
 }
 </style>
