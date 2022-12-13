@@ -127,17 +127,15 @@ const toCS = () => {
   window.open(url)
 }
 
-// 微信支付成功回调
-function callBack (res) {
-  ElMessage.success({
-    message: res,
-    duration: 0
-  })
-}
-
-const doPay = async (openid, amount) => {
-  await api.get(`wechat/pay_info?openid=${openid}&amount=${amount}`).then(res => {
-    onBridgeReady(res.data, callBack)
+const doPay = async (openid, fee, data) => {
+  await api.post(
+    'wechat/pay_info',
+    {
+      openid: openid,
+      fee: fee
+    }
+  ).then(res => {
+    onBridgeReady(res.data, createOrder, data)
   })
 }
 
@@ -148,7 +146,10 @@ const createOrder = async (data) => {
     userInfo.value = res.data
     sessionStorage.setItem('userInfo', JSON.stringify(res.data))
     // 跳转到兑换记录
-    ElMessage.success('兑换成功')
+    ElMessage.success({
+      message: '兑换成功',
+      duration: 1000
+    })
   }).catch(err => {
     console.log(err)
   })
@@ -169,7 +170,7 @@ const doEx = () => {
       openid: userInfo.value.openid,
       unionid: userInfo.value.unionid,
       order_amount: info.value.selling_price,
-      pay_type: exPay.value > 0,
+      pay_type: exPay.value > 0 ? 1 : 0,
       pay_card: {
         code: cardInfo.value.code,
         amount: balance.value > info.value.selling_price ? info.value.selling_price : balance.value
@@ -189,17 +190,17 @@ const doEx = () => {
         product_price: info.value.selling_price
       }
     }
-    console.log(data)
+    // console.log(data)
     // 兑换
-    console.log(exPay.value)
+    // console.log(exPay.value)
     if (exPay.value > 0) {
-      doPay(userInfo.value.openid, exPay.value)
+      doPay(userInfo.value.openid, exPay.value, data)
     } else {
-      console.log('有余额')
+      // console.log('有余额')
       createOrder(data)
     }
   }).catch(() => {
-    console.log('点了取消')
+    // console.log('点了取消')
   })
 }
 

@@ -86,7 +86,6 @@ router.beforeEach((to, from, next) => {
     })
   } else {
     if (to.name === 'wxAuth') {
-      console.log('111', from.name, to.name)
       next()
     } else {
       if (!cardInfo?.id && to.name !== 'bind') {

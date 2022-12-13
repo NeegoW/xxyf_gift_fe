@@ -26,7 +26,6 @@ if (code) {
     sessionStorage.setItem('contact_address', JSON.stringify(address))
     // 用replace方法替换当前路由，避免用户点击返回按钮时返回到授权页面
     const land = sessionStorage.getItem('fromPath') || '/'
-    console.log(land)
     router.replace(land)
   })
 } else {
