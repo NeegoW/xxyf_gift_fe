@@ -90,9 +90,7 @@ router.beforeEach((to, from, next) => {
       next()
     } else {
       if (!cardInfo?.id && to.name !== 'bind') {
-        next({
-          name: 'bind'
-        })
+        next('/bind')
       } else {
         next()
       }

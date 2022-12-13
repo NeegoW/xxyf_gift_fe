@@ -11,6 +11,11 @@ import LoadingMask from '@/components/LoadingMask.vue'
 const router = useRouter()
 const code = router.currentRoute.value.query.code
 const from = router.currentRoute.value.query.from
+
+if (sessionStorage.getItem('isAuth') === 'true') {
+  router.replace('/')
+}
+
 // 2.如果有code，则已经授权
 if (code) {
   getUserInfo(code).then((res) => {
