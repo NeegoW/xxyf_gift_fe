@@ -4,26 +4,28 @@
   </InnerPageHeader>
   <section class="exLog">
     <div class="item" v-if="info.length">
-      <el-row justify="space-between" class="title">
-        <el-col :span="10">
-          订单号：11114091327
-        </el-col>
-        <el-col :span="10">
-          下单时间：2022-11-15
-        </el-col>
-      </el-row>
-      <el-row justify="space-between" align="middle" class="card">
-        <el-col :span="6" class="img">
-          <img style="width: 100%" src="../assets/22.png" alt="">
-        </el-col>
-        <el-col :span="10" class="ctx">
-          <p>燕值坊五谷米礼盒</p>
-          <p>薄皮核桃200g 高蛋白</p>
-        </el-col>
-        <el-col :span="6" class="amount">
-          <p>合计：118.00</p>
-        </el-col>
-      </el-row>
+      <div v-for="item in info" :key="item.order_sn" @click="toInfo(item.id)">
+        <el-row justify="space-between" class="title">
+          <span>
+            订单号：{{ item.order_sn }}
+          </span>
+          <span>
+            下单时间：{{ orderDate(item.order_time) }}
+          </span>
+        </el-row>
+        <el-row justify="space-between" align="middle" class="card">
+          <el-col :span="7" class="img">
+            <img :src="item.OrderItem.product_pic" alt="">
+          </el-col>
+          <el-col :span="10" class="ctx">
+            <p>{{ item.OrderItem.product_name }}</p>
+            <p>{{ item.OrderItem.product_intro || 'NaN' }}</p>
+          </el-col>
+          <el-col :span="7" class="amount">
+            <p>合计：{{ item.OrderItem.product_price }}</p>
+          </el-col>
+        </el-row>
+      </div>
     </div>
     <el-empty v-if="!info.length" :image-size="200" description="暂无数据"/>
   </section>
@@ -33,13 +35,26 @@
 import InnerPageHeader from '@/components/InnerPageHeader'
 import { reactive, onBeforeMount } from 'vue'
 import api from '@/api'
+import router from '@/router'
 
 const info = reactive([])
 
+const orderDate = (val) => {
+  const date = new Date(val * 1000)
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+}
+
+const toInfo = (id) => {
+  router.push({
+    name: 'orderInfo',
+    params: { id: id }
+  })
+}
+
 onBeforeMount(async () => {
-  await api.get('/api/ex_log').then(res => {
+  const unionid = JSON.parse(sessionStorage.getItem('userInfo')).unionid
+  await api.get('/api/ex_log?unionid=' + unionid).then(res => {
     info.push(...res.data)
-    console.log(info)
   })
 })
 </script>
@@ -55,19 +70,23 @@ onBeforeMount(async () => {
   }
 
   .item {
-    width: 95vw;
-    margin: 0 auto 20px;
-    background: #FFFFFF;
-    border-radius: 10px;
-    font-size: .8rem;
+    width: 700rem;
+    margin: 0 auto 20rem;
+    font-size: 18rem;
     color: #666666;
 
+    > div {
+      margin-bottom: 20rem;
+      border-radius: 10rem;
+      background: #FFFFFF;
+    }
+
     .title {
-      padding: 16px;
+      padding: 16rem;
     }
 
     .card {
-      padding: 10px 5%;
+      padding: 10px 17rem;
       background: {
         image: url('@/assets/img/index/兑换记录背图.png');
         repeat: round;
@@ -76,6 +95,8 @@ onBeforeMount(async () => {
       .img {
         //clip-path: path('M 50 60 A 30 40 0 1 1 130 60 A 40 30 0 1 1 130 130 A 30 40 0 1 1 50 130 A 40 30 0 1 1 50 60');
         img {
+          width: 178rem;
+          height: 176rem;
           border-radius: 10px;
         }
       }
@@ -83,20 +104,20 @@ onBeforeMount(async () => {
       .ctx {
         p {
           &:first-child {
-            font-size: 1rem;
+            font-size: 24rem;
             color: #fff;
-            margin-bottom: .2rem;
+            margin-bottom: 14rem;
           }
 
           &:last-child {
-            font-size: .8rem;
+            font-size: 16rem;
             color: rgba(255, 255, 255, 0.65);
           }
         }
       }
 
       .amount {
-        font-size: .8rem;
+        font-size: 24rem;
         text-align: center;
         color: #fff;
         align-self: flex-end;

@@ -135,6 +135,7 @@ const doPay = async (openid, fee, data) => {
       fee: fee
     }
   ).then(res => {
+    data.out_trade_no = res.data.out_trade_no
     onBridgeReady(res.data, createOrder, data)
   })
 }
@@ -148,7 +149,7 @@ const createOrder = async (data) => {
     // 跳转到兑换记录
     ElMessage.success({
       message: '兑换成功',
-      duration: 1000
+      duration: 1500
     })
   }).catch(err => {
     console.log(err)

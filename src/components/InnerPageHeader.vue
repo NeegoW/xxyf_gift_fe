@@ -2,7 +2,7 @@
   <el-header>
     <el-col>
       <el-row justify="space-between" align="middle">
-        <el-col class="icon" :span="4" @click="router.back()" id="back">
+        <el-col class="icon" :span="4" @click="router.push('/')" id="back">
           <ArrowLeft style="width: 40rem"/>
         </el-col>
         <el-col :span="10">
