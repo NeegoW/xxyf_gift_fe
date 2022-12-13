@@ -78,25 +78,26 @@ router.beforeEach((to, from, next) => {
   const isAuth = sessionStorage.getItem('isAuth') === 'true'
   const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
   const cardInfo = userInfo?.card_info
-  if (!isAuth && to.meta.requiresAuth) {
-    // 没授权就只能去授权
-    console.log('000')
+  if (!isAuth && to.name !== 'wxAuth') {
+    console.log('000', from.name, to.name)
     next({
       name: 'wxAuth',
       query: { from: to.fullPath }
     })
-  } else if (!isAuth && !to.meta.requiresAuth) {
-    next()
+  } else {
+    if (to.name === 'wxAuth') {
+      console.log('111', from.name, to.name)
+      next()
+    } else {
+      if (!cardInfo?.id && to.name !== 'bind') {
+        next({
+          name: 'bind'
+        })
+      } else {
+        next()
+      }
+    }
   }
-
-  // 已授权没绑定去绑定
-  if (isAuth && !cardInfo && to.name !== 'bind') {
-    next({
-      name: 'bind'
-    })
-  }
-
-  next()
 })
 
 export default router
