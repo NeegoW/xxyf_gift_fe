@@ -13,7 +13,7 @@
         </el-row>
         <p>兑换记录</p>
       </router-link>
-      <router-link to="exInfo">
+      <router-link to="exManual">
         <el-row justify="center">
           <img style="width: 41rem" src="../assets/img/index/说明.png" alt="">
         </el-row>
