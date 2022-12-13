@@ -4,7 +4,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { jump2Auth, getUserInfo } from '@/api/wechatAuth'
+import { jump2Auth, getUserInfo } from '@/api/wechat'
 import LoadingMask from '@/components/LoadingMask.vue'
 
 // 获取query中的code参数
@@ -17,12 +17,12 @@ if (code) {
     // TODO 授权标识
     sessionStorage.setItem('isAuth', 'true')
     sessionStorage.setItem('userInfo', JSON.stringify(res.data))
-    const address = res.data.user_address[0] || {}
-    const cardInfo = res.data.card_info || {}
+    const address = res.data?.user_address?.[0] || {}
+    const cardInfo = res.data?.card_info || {}
     sessionStorage.setItem('contact_address', JSON.stringify(address))
     // 用replace方法替换当前路由，避免用户点击返回按钮时返回到授权页面
     const land = sessionStorage.getItem('fromPath') || '/'
-    if (cardInfo.id) {
+    if (cardInfo?.id) {
       router.replace(land)
     } else {
       router.replace('/bind')
