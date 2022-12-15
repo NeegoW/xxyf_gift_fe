@@ -1,6 +1,12 @@
 <template>
   <img class="cs-img" src="@/assets/img/cs.gif" alt="" @click="toCS">
   <BgImg :class="ofHidden">
+    <div class="count-time">
+      <div>
+        <p>卡券有效期至：</p>
+        <p>{{ validDate }}</p>
+      </div>
+    </div>
     <MaskLay v-if="showMask" @update:showMask="handleShowMask"/>
     <HeadNav @update:showMask="handleShowMask"/>
     <section class="home">
@@ -19,7 +25,7 @@
                 </el-carousel>
               </el-card>
             </el-col>
-            <el-col v-for="v in ch1" :key="v" class="item">
+            <el-col v-for="v in ch1" :key="v" class="item" @click="toInfo(v.id)">
               <el-card :body-style="{ padding: '16rem' }">
                 <el-image :src="v.show_img">
                   <template #placeholder>
@@ -35,7 +41,7 @@
                     {{ v.name }}
                   </el-col>
                   <el-col :span="4">
-                    <img @click="toInfo( v.id )" class="i-ex" src="../assets/img/index/兑换按钮.png" alt="">
+                    <img class="i-ex" src="../assets/img/index/兑换按钮.png" alt="">
                   </el-col>
                 </el-row>
               </el-card>
@@ -93,6 +99,13 @@ const handleShowMask = (val) => {
   localStorage.setItem('showMask', val)
 }
 
+// 截止时间
+const cardInfo = reactive(JSON.parse(sessionStorage.getItem('userInfo'))?.card_info)
+const validDate = computed(() => {
+  const date = new Date(cardInfo?.Active?.end_time * 1000)
+  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+})
+
 const router = useRouter()
 const toInfo = (id) => {
   router.push({
@@ -128,7 +141,9 @@ const toCS = () => {
 
 onMounted(async () => {
   // 获取packageList数据
-  await api.get('/api/package').then(res => {
+  const levelId = cardInfo?.Active?.level_id
+  console.log(levelId)
+  await api.get('/api/package?level_id=' + levelId).then(res => {
     packageList.push(...res.data)
   })
 })
@@ -141,6 +156,14 @@ onMounted(async () => {
   right: 0;
   top: 60vh;
   width: 108rem;
+}
+
+.count-time {
+  color: #eee;
+  font-size: 28rem;
+  line-height: 40rem;
+  margin-top: -60rem;
+  text-align: center;
 }
 
 .home {

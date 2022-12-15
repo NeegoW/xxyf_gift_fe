@@ -3,7 +3,7 @@
     <div class="container">
       <div class="info">
         <p>类型：{{ type }}</p>
-        <p>余额：{{ cardInfo?.Active?.balance }}</p>
+        <p>{{ balance }}</p>
       </div>
     </div>
     <div class="close" @click="emits('update:showMask',false)"></div>
@@ -18,6 +18,11 @@ const emits = defineEmits(['update:showMask'])
 const cardInfo = reactive(JSON.parse(sessionStorage.getItem('userInfo'))?.card_info)
 const type = computed(() => {
   return cardInfo?.type === '0' ? '储值卡' : '次卡'
+})
+const balance = computed(() => {
+  const a = '余额：' + cardInfo?.Active?.balance
+  const b = '次数：' + '1'
+  return cardInfo?.type === '0' ? a : b
 })
 </script>
 

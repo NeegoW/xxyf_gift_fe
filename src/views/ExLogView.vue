@@ -19,10 +19,10 @@
           </el-col>
           <el-col :span="10" class="ctx">
             <p>{{ item.OrderItem.product_name }}</p>
-            <p>{{ item.OrderItem.product_intro || 'NaN' }}</p>
+            <p><!--{{ item.OrderItem.product_intro || 'NaN' }}--></p>
           </el-col>
           <el-col :span="7" class="amount">
-            <p>合计：{{ item.OrderItem.product_price }}</p>
+            <!--            <p>合计：{{ item.OrderItem.product_price }}</p>-->
           </el-col>
         </el-row>
       </div>

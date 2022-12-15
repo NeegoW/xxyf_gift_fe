@@ -79,7 +79,7 @@ const validDate = computed(() => {
 
   .ex {
     width: 700rem;
-    height: 341rem;
+    min-height: 341rem;
     background: {
       size: contain;
       image: url('@/assets/img/ex_info/兑换背景.png');
@@ -119,7 +119,7 @@ const validDate = computed(() => {
 
   .desc {
     width: 700rem;
-    height: 562rem;
+    min-height: 562rem;
     background: {
       image: url('@/assets/img/ex_info/特别说明背景.png');
       repeat: round;
@@ -132,6 +132,7 @@ const validDate = computed(() => {
       color: #F7EED3;
       font-size: 18rem;
       padding-left: 30rem;
+      padding-bottom: 30rem;
 
       li {
         list-style-image: url('@/assets/img/ex_info/金币.png');

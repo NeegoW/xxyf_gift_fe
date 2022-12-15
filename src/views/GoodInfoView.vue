@@ -57,11 +57,14 @@
         <el-col :span="1">
           <img class="i-li-prefix" src="../assets/img/index/规格.png"/>
         </el-col>
-        <el-col :span="20">
-          <b>规格</b> 暂无信息
+        <el-col :span="2">
+          <b>规格</b>
+        </el-col>
+        <el-col :span="18">
+          <pre>{{ info?.description || '暂无信息' }}</pre>
         </el-col>
         <el-col :span="1">
-          <img class="i-li-prefix" src="../assets/img/index/展开.png"/>
+          <!--          <img class="i-li-prefix" src="../assets/img/index/展开.png"/>-->
         </el-col>
       </el-row>
     </div>
@@ -106,6 +109,10 @@ const info = ref({})
 const userInfo = ref(JSON.parse(sessionStorage.getItem('userInfo')))
 // 获取卡券信息
 const cardInfo = computed(() => userInfo.value.card_info)
+// 是否次卡
+const isOneTime = computed(() => cardInfo.value.type === '1')
+// 使用次数
+const countUse = computed(() => cardInfo.value.Active.count_use)
 // 余额
 const balance = computed(() => cardInfo.value.Active.balance)
 // 差价
@@ -113,7 +120,17 @@ const diff = computed(() => (balance.value - info.value.selling_price).toFixed(2
 // 微信补差价
 const exPay = computed(() => diff.value < 0 ? Math.abs(diff.value) : 0)
 // 提示信息
-const tip = computed(() => diff.value < 0 ? `卡券剩余不足，使用微信支付${exPay.value}，确认兑换吗` : `卡券剩余${balance.value}，确认兑换吗？`)
+const tip = computed(() => {
+  if (isOneTime.value) {
+    if (countUse.value > 0) {
+      return '卡券已兑换'
+    } else {
+      return '确认兑换吗？'
+    }
+  } else {
+    return diff.value < 0 ? `卡券剩余不足，使用微信支付${exPay.value}，确认兑换吗` : `卡券剩余${balance.value}，确认兑换吗？`
+  }
+})
 
 const toAddr = () => {
   router.push({
@@ -158,51 +175,63 @@ const createOrder = async (data) => {
 
 // 兑换操作
 const doEx = () => {
-  ElMessageBox.confirm(
-    tip.value,
-    {
-      distinguishCancelAndClose: true,
-      confirmButtonText: '兑换',
-      cancelButtonText: '取消'
-    }
-  ).then(() => {
-    // 整理数据
-    const data = {
-      openid: userInfo.value.openid,
-      unionid: userInfo.value.unionid,
-      order_amount: info.value.selling_price,
-      pay_type: exPay.value > 0 ? 1 : 0,
-      pay_card: {
-        code: cardInfo.value.code,
-        amount: balance.value > info.value.selling_price ? info.value.selling_price : balance.value
-      },
-      pay_wechat: exPay.value > 0 ? exPay.value : null,
-      receiver_name: address.name,
-      receiver_phone: address.tel,
-      receiver_province: address.province,
-      receiver_city: address.city,
-      receiver_county: address.county,
-      receiver_town: address.town,
-      receiver_address: address.address,
-      Item: {
-        product_id: info.value.id,
-        product_pic: info.value.show_img,
-        product_name: info.value.name,
-        product_price: info.value.selling_price
+  if (isOneTime.value && countUse.value > 0) {
+    ElMessage.error({
+      message: '兑换券无法重复使用',
+      duration: 1500
+    })
+  } else if (!address) {
+    ElMessage.error({
+      message: '请填写收货地址',
+      duration: 1500
+    })
+  } else {
+    ElMessageBox.confirm(
+      tip.value,
+      {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '兑换',
+        cancelButtonText: '取消'
       }
-    }
-    // console.log(data)
-    // 兑换
-    // console.log(exPay.value)
-    if (exPay.value > 0) {
-      doPay(userInfo.value.openid, exPay.value, data)
-    } else {
-      // console.log('有余额')
-      createOrder(data)
-    }
-  }).catch(() => {
-    // console.log('点了取消')
-  })
+    ).then(() => {
+      // 整理数据
+      const data = {
+        openid: userInfo.value.openid,
+        unionid: userInfo.value.unionid,
+        order_amount: info.value.selling_price,
+        pay_type: exPay.value > 0 ? 1 : 0,
+        pay_card: {
+          code: cardInfo.value.code,
+          amount: balance.value > info.value.selling_price ? info.value.selling_price : balance.value
+        },
+        pay_wechat: exPay.value > 0 ? exPay.value : null,
+        receiver_name: address.name,
+        receiver_phone: address.tel,
+        receiver_province: address.province,
+        receiver_city: address.city,
+        receiver_county: address.county,
+        receiver_town: address.town,
+        receiver_address: address.address,
+        Item: {
+          product_id: info.value.id,
+          product_pic: info.value.show_img,
+          product_name: info.value.name,
+          product_price: info.value.selling_price
+        }
+      }
+      // console.log(data)
+      // 兑换
+      // console.log(exPay.value)
+      if (exPay.value > 0) {
+        doPay(userInfo.value.openid, exPay.value, data)
+      } else {
+        // console.log('有余额')
+        createOrder(data)
+      }
+    }).catch(() => {
+      // console.log('点了取消')
+    })
+  }
 }
 
 onMounted(async () => {

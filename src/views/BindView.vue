@@ -45,9 +45,9 @@ const router = useRouter()
 // 获取sS中用户信息
 const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
 // TODO : 绑定多卡时可进入
-if (userInfo?.card_info?.id) {
-  router.replace('/')
-}
+// if (userInfo?.card_info?.id) {
+//   router.replace('/')
+// }
 
 const formRef = ref()
 const form = reactive({

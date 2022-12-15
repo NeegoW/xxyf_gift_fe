@@ -19,6 +19,12 @@
         </el-row>
         <p>兑换说明</p>
       </router-link>
+      <router-link to="bind">
+        <el-row justify="center">
+          <img style="width: 41rem" src="../assets/img/index/tobind.png" alt="">
+        </el-row>
+        <p>去绑定</p>
+      </router-link>
     </el-row>
   </div>
 </template>
