@@ -36,7 +36,7 @@
 
 <script setup>
 import { Edit, Delete } from '@element-plus/icons-vue'
-import { onUpdated, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import api from '@/api'
 import router from '@/router'
 
@@ -48,15 +48,27 @@ const props = defineProps({
 })
 const emit = defineEmits(['edit:contact', 'del:contact'])
 
-const checkRadio = ref(null)
+const checkRadio = computed({
+  get () {
+    // 设置默认地址
+    const temp = props.contact.find((v) => v.status === '1') || {}
+    sessionStorage.setItem('contact_address', JSON.stringify(temp))
+    return temp?.id
+  },
+  set (val) {
+    props.contact.forEach((v) => {
+      v.status = v.id === val ? '1' : '0'
+    })
+  }
+})
+const _packageId = router.currentRoute.value.params.packageId
+const _idx = router.currentRoute.value.params.idx
 
 const changeDefault = async (val) => {
   const unionid = JSON.parse(sessionStorage.getItem('userInfo')).unionid
   await api.put('api/change_def_addr', {
     id: val,
     unionid: unionid
-  }).then(res => {
-    console.log(res)
   })
 }
 
@@ -75,17 +87,15 @@ const delAddr = async (id) => {
 
 // 选择该地址
 const chooseAddress = (v) => {
-  sessionStorage.setItem('contact_address', JSON.stringify(v))
-  router.go(-1)
+  const changeItemAddr = JSON.parse(sessionStorage.getItem('changeItemAddr'))
+  // console.log(changeItemAddr.find(item => item.packageId === _packageId))
+  changeItemAddr.find(item => item.packageId === _packageId).addresses[_idx] = v
+  sessionStorage.setItem('changeItemAddr', JSON.stringify(changeItemAddr))
+  router.back()
 }
 
 watch(checkRadio, (val) => {
   changeDefault(val)
-})
-
-onUpdated(() => {
-  // props.contact中status为1的id赋予checkRadio
-  checkRadio.value = props.contact.find(v => v.status === '1')?.id || null
 })
 </script>
 

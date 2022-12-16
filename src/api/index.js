@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { ElMessage } from 'element-plus'
+import { showFailToast } from 'vant'
 
 const api = axios.create({
   // 设置请求的基础路径
@@ -31,11 +31,7 @@ api.interceptors.response.use(
     // 不是则是用ELMessage弹出数据中的msg错误信息
     if (response.data?.code) {
       if (response.data.code !== 200) {
-        ElMessage({
-          message: response.data.msg,
-          duration: 1500,
-          type: 'error'
-        })
+        showFailToast(response.data.msg)
         return response.data
       } else {
         return response.data

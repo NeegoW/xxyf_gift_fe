@@ -37,6 +37,7 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import PickAddr from '@/components/PickAddr.vue'
 import api from '@/api'
+import { showFailToast } from 'vant'
 
 const props = defineProps({
   addrInfo: {
@@ -99,6 +100,8 @@ const rules = {
       trigger: 'blur'
     },
     {
+      minLength: 11,
+      maxLength: 11,
       pattern: /^1[3456789]\d{9}$/,
       message: '手机号码格式不正确',
       trigger: 'blur'
@@ -138,7 +141,7 @@ const submitForm = async (formEl) => {
         emit('save:contact', form, isAdd, isChange)
       })
     } else {
-      console.log('error submit!', fields)
+      showFailToast('请检查信息')
     }
   })
 }
