@@ -52,7 +52,7 @@ const routes = [
     }
   },
   {
-    path: '/addr',
+    path: '/addr/:packageId/:idx',
     name: 'addr',
     component: () => import('../views/AddrView.vue'),
     meta: {
