@@ -46,7 +46,7 @@
           </li>
           <li>每种礼包数量有限，请尽早兑换，如遇某种礼包缺货，有权更换等价值其他礼包，所有商品以最终实物为准。</li>
           <li>
-            此券一旦下单，无质量问题，不退不换，如遇质量问题，请在收到货品24小时内拨打客服热线，并将有质量问题的产品图片、订单信息及联系方式发送至在线客服，将由客服专员为您妥善处理。
+            此券一旦下单，无质量问题，不退不换，如遇质量问题，请在收到货品72小时内拨打客服热线，并将有质量问题的产品图片、订单信息及联系方式发送至在线客服，将由客服专员为您妥善处理。
           </li>
         </ul>
       </div>
@@ -56,12 +56,19 @@
 
 <script setup>
 import InnerPageHeader from '@/components/InnerPageHeader.vue'
-import { computed, reactive } from 'vue'
+import { computed, onMounted, reactive } from 'vue'
 
 const cardInfo = reactive(JSON.parse(sessionStorage.getItem('userInfo'))?.card_info)
 const validDate = computed(() => {
   const date = new Date(cardInfo?.Active?.end_time * 1000)
-  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`
+})
+
+onMounted(() => {
+  const t = document.querySelector('body')
+  // 修改t下的自定义属性--xx-prim
+  document.querySelector('body').style.setProperty('--xx-prim', 'white')
+  console.log(t)
 })
 </script>
 

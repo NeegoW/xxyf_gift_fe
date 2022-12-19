@@ -8,7 +8,7 @@
   <div class="order-info">
     <el-header>
       <el-row align="middle" justify="space-between">
-        <el-col class="icon" :span="4" @click="back" id="back">
+        <el-col class="icon" :span="4" @click="router.back()" id="back">
           <ArrowLeft style="width: 40rem"/>
         </el-col>
         <el-col :span="10">
@@ -38,13 +38,13 @@
       <p>你的订单将由以下仓库发出：</p>
       <el-scrollbar>
         <div class="scrollbar-flex-content">
-          <div class="item" v-for="(sup,idx) in info.Suborder" :key="sup.id" ref="supRef" @click="itemActive(idx)">
+          <div :class="'item '+idx" v-for="(sup,idx) in info.sup_" :key="idx" ref="supRef" @click="itemActive(idx)">
             <el-col :span="12">
-              <p>仓库{{ sup.goods_class }}</p>
-              <p>共{{ sup.goods_count }}件</p>
+              <p>仓库{{ idx }}</p>
+              <p>共{{ sup.length }}件</p>
             </el-col>
             <el-col :span="12">
-              <img class="img" :src="sup.goods_item[0].thumbnail_image" :alt="sup.goods_item[0].name"/>
+              <img class="img" :src="sup[0].g_pic" :alt="sup[0].name"/>
             </el-col>
           </div>
         </div>
@@ -90,11 +90,11 @@
                 <van-cell title="">
                   <template #label>
                     <el-row class="logistics-list">
-                      <el-col :span="6" v-for="(sup,idx) in info.Suborder" :key="idx"
-                              @click="getLogistics(sup?.delivery_sn,idx)">
-                        <div class="title">仓库{{ sup.goods_class }}</div>
-                        <div class="image">
-                          <img :src="sup.goods_item[0].thumbnail_image" alt="">
+                      <el-col :class="'temp '+idx" :span="6" v-for="(sup,idx) in info.sup_" :key="idx"
+                              @click="itemActive(idx)">
+                        <div class="title">仓库{{ idx }}</div>
+                        <div class="image" @click="addClass">
+                          <img :src="sup[0].g_pic" :alt="sup[0].g_name">
                         </div>
                       </el-col>
                     </el-row>
@@ -105,7 +105,7 @@
                 <van-cell>
                   <van-tabs>
                     <el-empty v-if="!logistics.length" description="暂无物流信息"/>
-                    <van-tab v-for="(item,k) in logistics" :title="'物流 ' + (k+1)" :key="k">
+                    <van-tab v-for="(item,k) in logistics[supIdx]" :title="'物流 ' + (k+1)" :key="k">
                       <van-cell :title="item.expressCompany+' '+item.expressNo" class="expressNo">
                       </van-cell>
                       <van-steps direction="vertical" :active="0"
@@ -122,16 +122,16 @@
                           <p>{{ _s.time }}</p>
                         </van-step>
                       </van-steps>
+                      <!--                      <el-row class="logistics-bot" v-if="logistics.length">-->
+                      <!--                        <div class="receive">-->
+                      <!--                          收-->
+                      <!--                        </div>-->
+                      <!--                        <div class="logistics-bot-right">-->
+                      <!--                          <span>{{ info.receiver_name }}，{{ info.receiver_phone }}，{{ region }}{{ addr }}</span>-->
+                      <!--                        </div>-->
+                      <!--                      </el-row>-->
                     </van-tab>
                   </van-tabs>
-                  <el-row class="logistics-bot" v-if="logistics.length">
-                    <div class="receive">
-                      收
-                    </div>
-                    <div class="logistics-bot-right">
-                      <span>{{ info.receiver_name }}，{{ info.receiver_phone }}，{{ region }}{{ addr }}</span>
-                    </div>
-                  </el-row>
                 </van-cell>
               </van-cell-group>
               <div></div>
@@ -143,45 +143,23 @@
 
     <section class="desc">
       <el-row>
-        <el-col class="item" v-for="(item,idx) in supActiveInfo?.goods_item" :key="idx">
+        <el-col class="item" v-for="(item,idx) in supActiveInfo" :key="idx">
           <el-row>
             <el-col :span="5">
-              <img class="img" :src="item.thumbnail_image" :alt="item.name">
+              <img class="img" :src="item.g_pic" :alt="item.name">
             </el-col>
             <el-col :span="19" style="align-self: center">
-              <p>{{ item.name }}</p>
-              <p>{{ item.goods_spec }}</p>
+              <p>{{ item.g_name }}</p>
+              <p>{{ item.g_spec }}</p>
             </el-col>
-            <!--            <el-col :span="4" class="flex-right">-->
-            <!--              <div>-->
-            <!--                <img src="../assets/img/index/豆.png" alt="">-->
-            <!--                <span>118</span>-->
-            <!--              </div>-->
-            <!--            </el-col>-->
           </el-row>
         </el-col>
       </el-row>
     </section>
 
     <section class="price">
-      <!--      <el-row class="info" justify="space-between">-->
-      <!--        <div>商品总价</div>-->
-      <!--        <div>236.00</div>-->
-      <!--      </el-row>-->
-      <!--      <el-row class="info" justify="space-between">-->
-      <!--        <div>运费</div>-->
-      <!--        <div>0</div>-->
-      <!--      </el-row>-->
-      <!--      <el-row class="tot" justify="space-between">-->
-      <!--        <div>总计</div>-->
-      <!--        <div>-->
-      <!--          <img src="../assets/img/index/豆.png" alt="">-->
-      <!--          <span class="red">236.00</span>-->
-      <!--        </div>-->
-      <!--      </el-row>-->
-      <!--      <el-divider/>-->
       <el-row class="order-intro">
-        <el-space direction="vertical">订单号：{{ info.order_sn }}</el-space>
+        <el-space direction="vertical">订单号：{{ info?.order_sn }}</el-space>
         <el-space direction="vertical">兑换时间：{{ orderTime }}</el-space>
       </el-row>
     </section>
@@ -189,17 +167,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import router from '@/router'
 import api from '@/api'
 import { ArrowLeft } from '@element-plus/icons-vue'
-import {
-  Cell as VanCell, CellGroup as VanCellGroup,
-  Popup as VanPopup,
-  Space as VanSpace,
-  Tabs as VanTabs, Tab as VanTab,
-  Steps as VanSteps, Step as VanStep
-} from 'vant'
 import LoadingMask from '@/components/LoadingMask.vue'
 
 // 页面加载
@@ -248,49 +219,62 @@ const orderTime = computed(() => {
 })
 
 // 发起请求获取物流信息
-const getLogistics = (numList, idx) => {
-  logistics.value = []
-  console.log(numList)
-  console.log(idx)
-  if (numList) {
-    // console.log(numList)
-    numList.forEach(async (num) => {
-      await api.post(
-        '/api/logistics/getLogistics_public',
-        {
-          logistics_number: num
-        },
-        {
-          baseURL: 'https://xxht.xinxuanyf.com'
-        }
-      ).then((res) => {
-        logistics.value.push(...JSON.parse(res))
-      })
-      console.log(logistics.value)
-    })
+const getLogistics = async () => {
+  for (const key in info.value.sup_) {
+    const s_ = info.value.sup_[key]
+    const temp = []
+    for (const k in s_) {
+      const s = s_[k]
+      if (s.delivery_sn) {
+        await api.post(
+          '/api/logistics/getLogistics_public',
+          {
+            logistics_number: s.delivery_sn
+          },
+          {
+            baseURL: 'https://xxht.xinxuanyf.com'
+          }
+        ).then((res) => {
+          temp.push(JSON.parse(res)[0])
+          logistics.value[s.class] = temp
+        })
+      }
+    }
   }
+  // info.value.sup_.forEach((s_) => {
+  //   console.log(s_)
+  //   s_.forEach(async (s) => {
+  //     if (s.delivery_sn) {
+  //       await api.post(
+  //         '/api/logistics/getLogistics_public',
+  //         {
+  //           logistics_number: s.delivery_sn
+  //         },
+  //         {
+  //           baseURL: 'https://xxht.xinxuanyf.com'
+  //         }
+  //       ).then((res) => {
+  //         logistics.value[0] = JSON.parse(res)
+  //       })
+  //     } else {
+  //       logistics.value.push({})
+  //     }
+  //   })
+  // })
 }
 
 // 切换仓库
 const itemActive = (idx) => {
+  supIdx.value = idx
   // 先删除现有的active再添加
   supRef.value.forEach((item) => {
     item.classList.remove('active')
   })
-  supIdx.value = idx
-  supRef.value[idx].classList.add('active')
-  supActiveInfo.value = info.value.Suborder[idx]
-  // console.log(supActiveInfo.value.goods_item[0].thumbnail_image)
-}
 
-// 返回上一页
-const back = () => {
-  // 从wxAuth来的就replace到首页
-  if (router.currentRoute.value.query.from === 'wxAuth') {
-    router.replace('/')
-  } else {
-    router.back()
-  }
+  // supRef中含有idx类的元素
+  const temp1 = supRef.value.filter((item) => item.classList.contains(idx))[0]
+  temp1.classList.add('active')
+  supActiveInfo.value = info.value.sup_[supIdx.value]
 }
 
 // 拼接地址信息
@@ -298,7 +282,10 @@ watch(() => info.value, (val) => {
   if (val) {
     region.value = `${val.receiver_province}  ${val.receiver_city}  ${val.receiver_county}  ${val.receiver_town}`
     addr.value = val.receiver_address
-    supActiveInfo.value = info.value.Suborder[supIdx.value]
+    // 获取info.value.sup_的第一个下标
+    const idx = Object.keys(info.value.sup_)[0]
+    supIdx.value = idx
+    supActiveInfo.value = info.value.sup_[supIdx.value]
   }
 })
 
@@ -309,10 +296,14 @@ onMounted(async () => {
     info.value = res.data
   })
   loading.value = false
-  // 默认选中第一个仓库
-  supIdx.value = 0
-  supRef.value[supIdx.value]?.classList.add('active')
-  getLogistics(info.value.Suborder[0].delivery_sn, 0)
+  // 获取info.value.sup_的第一个键值
+  supIdx.value = Object.keys(info.value.sup_)[0]
+  // supRef中含有idx类的元素
+  const temp1 = supRef.value.filter((item) => item.classList.contains(supIdx.value))[0]
+  temp1.classList.add('active')
+  supActiveInfo.value = info.value.sup_[supIdx.value]
+  // 获取物流信息
+  getLogistics()
 })
 </script>
 
@@ -479,6 +470,10 @@ onMounted(async () => {
             border: 1px solid #B3B3B3;
             border-radius: 10rem;
             overflow: hidden;
+
+            &.active {
+              border: 1px solid #C51829;
+            }
 
             img {
               width: 100%;

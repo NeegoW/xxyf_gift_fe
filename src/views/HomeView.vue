@@ -103,7 +103,7 @@ const handleShowMask = (val) => {
 const cardInfo = reactive(JSON.parse(sessionStorage.getItem('userInfo'))?.card_info)
 const validDate = computed(() => {
   const date = new Date(cardInfo?.Active?.end_time * 1000)
-  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`
 })
 
 const router = useRouter()
@@ -142,7 +142,7 @@ const toCS = () => {
 onMounted(async () => {
   // 获取packageList数据
   const levelId = cardInfo?.Active?.level_id
-  console.log(levelId)
+  // console.log(levelId)
   await api.get('/api/package?level_id=' + levelId).then(res => {
     packageList.push(...res.data)
   })

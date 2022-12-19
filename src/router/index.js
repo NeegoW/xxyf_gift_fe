@@ -79,7 +79,6 @@ router.beforeEach((to, from, next) => {
   const userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
   const cardInfo = userInfo?.card_info
   if (!isAuth && to.name !== 'wxAuth') {
-    console.log('000', from.name, to.name)
     next({
       name: 'wxAuth',
       query: { from: to.fullPath }

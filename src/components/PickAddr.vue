@@ -103,7 +103,7 @@ const selectTownList = ref([])
 watch(
   () => props.value,
   (val) => {
-    console.log(val)
+    // console.log(val)
     if (val.length) {
       province.value = val[0]
       city.value = val[1]

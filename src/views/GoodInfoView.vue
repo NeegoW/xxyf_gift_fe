@@ -4,70 +4,44 @@
   </InnerPageHeader>
   <LoadingMask v-if="isLoading"/>
   <section class="goodInfo" v-if="!isLoading">
-    <div class="img">
-      <el-image :src="info?.show_img">
-        <template #placeholder>
-          <div class="image-slot">
-            <el-icon>
-              <icon-picture/>
-            </el-icon>
-          </div>
-        </template>
-      </el-image>
-    </div>
-    <div class="shadow">
-      <p>{{ info?.name }}</p>
-      <!--      <p>-->
-      <!--        <img class="i-dou" src="../assets/img/index/豆.png">-->
-      <!--        <span class="word-red">{{ info?.selling_price }}</span>-->
-      <!--      </p>-->
-    </div>
-    <div class="shadow">
-      <el-row class="li" align="middle" justify="space-between">
-        <el-col :span="1">
-          <img class="i-li-prefix" src="../assets/img/index/货运32PX.png"/>
-        </el-col>
-        <el-col :span="20">
-          <b>{{ deliveryArea }}</b>
-          <p>配送至：{{ deliveryAddr }}</p>
-        </el-col>
-        <el-col :span="1">
-          <img @click="toAddr" class="i-li-prefix" src="../assets/img/index/展开.png"/>
-        </el-col>
-      </el-row>
-      <el-row class="li" align="middle" justify="space-between">
-        <el-col :span="1">
-          <img class="i-li-prefix" src="../assets/img/index/保障.png"/>
-        </el-col>
-        <el-col :span="20">
-          正品保障 · 全国快递 · 快递速达 · 售后无忧
-        </el-col>
-        <el-col :span="1"></el-col>
-      </el-row>
-      <el-row class="li" align="middle" justify="space-between">
-        <el-col :span="1">
-          <img class="i-li-prefix" src="../assets/img/index/运费.png"/>
-        </el-col>
-        <el-col :span="20">
-          <b>运费</b>免运费
-        </el-col>
-        <el-col :span="1"></el-col>
-      </el-row>
-      <el-row class="li" align="middle" justify="space-between">
-        <el-col :span="1">
-          <img class="i-li-prefix" src="../assets/img/index/规格.png"/>
-        </el-col>
-        <el-col :span="2">
-          <b>规格</b>
-        </el-col>
-        <el-col :span="18">
-          <pre>{{ info?.description || '暂无信息' }}</pre>
-        </el-col>
-        <el-col :span="1">
-          <!--          <img class="i-li-prefix" src="../assets/img/index/展开.png"/>-->
-        </el-col>
-      </el-row>
-    </div>
+    <van-space direction="vertical" fill size="20rem">
+      <div class="img">
+        <el-image :src="info?.show_img">
+          <template #placeholder>
+            <div class="image-slot">
+              <el-icon>
+                <icon-picture/>
+              </el-icon>
+            </div>
+          </template>
+        </el-image>
+      </div>
+      <div class="shadow">
+        <span class="f-big">{{ info?.name }}</span>
+      </div>
+      <div class="items shadow">
+        <div class="item" v-for="(item,_k) in cGoods" :key="_k">
+          <el-row :gutter="10">
+            <el-col :span="6">
+              <img class="thumb" :src="item.thumbnail_image" alt="">
+            </el-col>
+            <el-col :span="14">
+              <van-space class="item-ctx" size="20rem" direction="vertical" fill>
+                <div class="f-big">{{ item.name }}</div>
+                <div>
+                  <p>联系人：{{ Object.values(item.address).slice(0, 2).join(' ') || '' }}</p>
+                  <p>配送至：{{ Object.values(item.address).slice(2).join(' ') || '' }}</p>
+                </div>
+              </van-space>
+            </el-col>
+            <el-col :span="4" class="item-right" @click="chooseAddr(_k)">
+              修改地址
+            </el-col>
+          </el-row>
+        </div>
+      </div>
+      <div></div>
+    </van-space>
     <div class="footer">
       <el-row justify="space-around">
         <el-button @click="toCS" class="cs">联系客服</el-button>
@@ -80,30 +54,46 @@
 <script setup>
 import { reactive, onMounted, computed, ref, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import api from '@/api'
-import { Picture as IconPicture } from '@element-plus/icons-vue'
+import { showConfirmDialog, showFailToast, showSuccessToast } from 'vant'
 
+import { Picture as IconPicture } from '@element-plus/icons-vue'
+import api from '@/api'
 import InnerPageHeader from '@/components/InnerPageHeader.vue'
 import LoadingMask from '@/components/LoadingMask.vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import onBridgeReady from '@/utils/wechatPay'
 
 const isLoading = ref(true)
 
 // 从sS中获取地址信息
 const contactAddress = JSON.parse(sessionStorage.getItem('contact_address') || '{}')
 const address = reactive(contactAddress ?? {})
-const deliveryArea = computed(() => {
-  return address?.province + address?.city || '暂无地址信息'
-})
-const deliveryAddr = computed(() => {
-  return address?.county + address?.town + address?.address || '暂无地址信息'
-})
 
 // 获取路由参数
 const router = useRouter()
 const packageId = router.currentRoute.value.params.id
 const info = ref({})
+// 套餐内商品
+const cGoods = computed(() => {
+  const changeItemAddr = JSON.parse(sessionStorage.getItem('changeItemAddr')) || []
+  const p = changeItemAddr.find((item) => item.packageId === packageId)
+  // 设置默认地址
+  info.value?.Goods.forEach((item, k) => {
+    const temp = {
+      name: address?.name,
+      tel: address?.tel,
+      province: address?.province,
+      city: address?.city,
+      county: address?.county,
+      town: address?.town,
+      address: address?.address
+    }
+    if (p?.addresses[k]) {
+      item.address = p.addresses[k]
+    } else {
+      item.address = temp || {}
+    }
+  })
+  return info.value?.Goods || []
+})
 
 // 获取用户信息
 const userInfo = ref(JSON.parse(sessionStorage.getItem('userInfo')))
@@ -122,115 +112,143 @@ const exPay = computed(() => diff.value < 0 ? Math.abs(diff.value) : 0)
 // 提示信息
 const tip = computed(() => {
   if (isOneTime.value) {
-    if (countUse.value > 0) {
-      return '卡券已兑换'
+    // TODO : 次数判断
+    // 次卡只能一次
+    if (process.env.NODE_ENV === 'development') {
+      return true
     } else {
-      return '确认兑换吗？'
+      return parseInt(countUse.value) === 0
     }
   } else {
-    return diff.value < 0 ? `卡券剩余不足，使用微信支付${exPay.value}，确认兑换吗` : `卡券剩余${balance.value}，确认兑换吗？`
+    return true
   }
 })
 
-const toAddr = () => {
+// 修改地址
+const chooseAddr = (_idx) => {
+  const changeItemAddr = JSON.parse(sessionStorage.getItem('changeItemAddr') || '{}')
+  if (changeItemAddr.length) {
+    // 有修改地址数据
+    // 查找changeItemAddr中下标为packageId的数据
+    const idx = changeItemAddr.findIndex((item) => item.packageId === packageId)
+    if (idx >= 0) {
+      // 如果存在，则修改
+      changeItemAddr[idx].addresses[_idx] = cGoods.value[_idx].address
+    } else {
+      // 如果不存在，则添加
+      const temp = {
+        packageId: packageId,
+        addresses: {}
+      }
+      temp.addresses[_idx] = cGoods.value[_idx].address
+      changeItemAddr.push(temp)
+    }
+    // 保存到sessionStorage
+    sessionStorage.setItem('changeItemAddr', JSON.stringify(changeItemAddr))
+  } else {
+    // 无修改地址数据，初始化并添加
+    const temp = {
+      packageId: packageId,
+      addresses: {}
+    }
+    temp.addresses[_idx] = cGoods.value[_idx].address
+    sessionStorage.setItem('changeItemAddr', JSON.stringify([temp]))
+  }
   router.push({
-    name: 'addr'
+    name: 'addr',
+    params: {
+      packageId: packageId,
+      idx: _idx
+    }
   })
 }
-
 // 联系客服
 const toCS = () => {
   const url = 'https://work.weixin.qq.com/kfid/kfcd4d3cef620aa8656'
   window.open(url)
 }
 
-const doPay = async (openid, fee, data) => {
-  await api.post(
-    'wechat/pay_info',
-    {
-      openid: openid,
-      fee: fee
-    }
-  ).then(res => {
-    data.out_trade_no = res.data.out_trade_no
-    onBridgeReady(res.data, createOrder, data)
-  })
-}
-
-// eslint-disable-next-line no-unused-vars
 const createOrder = async (data) => {
   api.post('/api/order', data).then(res => {
     // 更新用户信息
     userInfo.value = res.data
     sessionStorage.setItem('userInfo', JSON.stringify(res.data))
     // 跳转到兑换记录
-    ElMessage.success({
-      message: '兑换成功',
-      duration: 1500
+    showSuccessToast('兑换成功')
+    router.push({
+      name: 'exLog'
     })
-  }).catch(err => {
+  }).catch(/* err => {
     console.log(err)
+  } */)
+}
+
+const confirm = () => {
+  showConfirmDialog({
+    title: '兑换'
+  }).then(() => {
+    const data = {
+      openid: userInfo.value.openid,
+      unionid: userInfo.value.unionid,
+      order_amount: info.value.selling_price,
+      pay_type: exPay.value > 0 ? 1 : 0,
+      pay_card: {
+        code: cardInfo.value.code,
+        amount: balance.value > info.value.selling_price ? info.value.selling_price : balance.value
+      },
+      pay_wechat: exPay.value > 0 ? exPay.value : null,
+      receiver_name: address.name,
+      receiver_phone: address.tel,
+      receiver_province: address.province,
+      receiver_city: address.city,
+      receiver_county: address.county,
+      receiver_town: address.town,
+      receiver_address: address.address,
+      Item: {
+        // 套餐主信息
+        product_id: info.value.id,
+        product_pic: info.value.show_img,
+        product_name: info.value.name,
+        product_price: info.value.selling_price,
+        // 套餐内所涵盖商品信息
+        SubItem: []
+      }
+    }
+    // 将cGoods.value添加到SubItem中
+    cGoods.value.forEach((item, k) => {
+      const temp = {
+        one_gid: item.id,
+        class: item.class,
+        receiver_name: item.address.name,
+        receiver_phone: item.address.tel,
+        receiver_province: item.address.province,
+        receiver_city: item.address.city,
+        receiver_county: item.address.county,
+        receiver_town: item.address.town,
+        receiver_address: item.address.address
+      }
+      data.Item.SubItem.push(temp)
+    })
+    // console.log(data)
+    // TODO : 发送请求
+    createOrder(data)
+  }).catch(() => {
   })
 }
 
 // 兑换操作
 const doEx = () => {
-  if (isOneTime.value && countUse.value > 0) {
-    ElMessage.error({
-      message: '兑换券无法重复使用',
-      duration: 1500
-    })
-  } else if (!address) {
-    ElMessage.error({
-      message: '请填写收货地址',
-      duration: 1500
-    })
+  // 判断是否可兑换
+  if (tip.value) {
+    // 判断是否有地址
+    if (cGoods.value.every((item) => item.address?.name)) {
+      // TODO : 确认兑换
+      confirm()
+    } else {
+      showFailToast('请填写地址')
+    }
   } else {
-    ElMessageBox.confirm(
-      tip.value,
-      {
-        distinguishCancelAndClose: true,
-        confirmButtonText: '兑换',
-        cancelButtonText: '取消'
-      }
-    ).then(() => {
-      // 整理数据
-      const data = {
-        openid: userInfo.value.openid,
-        unionid: userInfo.value.unionid,
-        order_amount: info.value.selling_price,
-        pay_type: exPay.value > 0 ? 1 : 0,
-        pay_card: {
-          code: cardInfo.value.code,
-          amount: balance.value > info.value.selling_price ? info.value.selling_price : balance.value
-        },
-        pay_wechat: exPay.value > 0 ? exPay.value : null,
-        receiver_name: address.name,
-        receiver_phone: address.tel,
-        receiver_province: address.province,
-        receiver_city: address.city,
-        receiver_county: address.county,
-        receiver_town: address.town,
-        receiver_address: address.address,
-        Item: {
-          product_id: info.value.id,
-          product_pic: info.value.show_img,
-          product_name: info.value.name,
-          product_price: info.value.selling_price
-        }
-      }
-      // console.log(data)
-      // 兑换
-      // console.log(exPay.value)
-      if (exPay.value > 0) {
-        doPay(userInfo.value.openid, exPay.value, data)
-      } else {
-        // console.log('有余额')
-        createOrder(data)
-      }
-    }).catch(() => {
-      // console.log('点了取消')
-    })
+    showFailToast('无法重复兑换')
   }
 }
 
@@ -250,62 +268,59 @@ onMounted(async () => {
   font-size: 28rem;
   color: #333333;
 
+  // 阴影
   .shadow {
-    background: #FFFFFF;
-    box-shadow: -6px 0px 10px 0px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20rem;
-    padding: 10rem 25rem;
-
-    .li {
-      padding: 10px 0;
-      border-bottom: 1px solid #B3B3B3;
-      font-size: 20rem;
-
-      &:last-child {
-        border-bottom: none;
-      }
-
-      b {
-        font-weight: bold !important;
-        margin-right: 10px;
-      }
-    }
+    box-shadow: 0 0 10rem 0 rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    padding: 20rem;
   }
 
-  .word-red {
-    color: #C51829;
-    font-size: 32rem;
+  .f-big {
+    font-size: 28rem;
   }
 
-  .img {
-    .el-image {
-      width: 100%;
-    }
+  .items {
 
-    .image-slot {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-      height: 100%;
-      background: var(--el-fill-color-light);
-      color: var(--el-text-color-secondary);
-      font-size: 30rem;
+    .item {
+      &:not(:last-child) {
+        margin-bottom: 20rem;
+        padding-bottom: 10rem;
+        border-bottom: 1px solid #EEEEEE;
+      }
 
-      .el-icon {
-        font-size: 30rem;
+      .thumb {
+        width: 100%;
+        border: 1rem solid #EEEEEE;
+        border-radius: 10rem;
+        overflow: hidden;
+      }
+
+      .item-ctx {
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        font-size: 20rem;
+      }
+
+      .item-right {
+        margin-bottom: 5rem;
+        padding: 5rem 3rem;
+        border: 1rem solid #c41829;
+        border-radius: 20rem;
+        justify-self: center;
+        align-self: flex-end;
+        font-size: 20rem;
+        text-align: center;
+        color: #c41829;
       }
     }
-  }
-
-  .i-li-prefix {
-    width: 32rem;
-    height: 32rem;
   }
 
   .footer {
     width: 100%;
     background: #FFFFFF;
+    height: auto;
     padding: 20rem 0 30rem;
 
     .el-button {

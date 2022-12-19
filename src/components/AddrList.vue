@@ -89,7 +89,10 @@ const delAddr = async (id) => {
 const chooseAddress = (v) => {
   const changeItemAddr = JSON.parse(sessionStorage.getItem('changeItemAddr'))
   // console.log(changeItemAddr.find(item => item.packageId === _packageId))
-  changeItemAddr.find(item => item.packageId === _packageId).addresses[_idx] = v
+  // 去除v.status
+  const temp = { ...v }
+  delete temp.status
+  changeItemAddr.find(item => item.packageId === _packageId).addresses[_idx] = temp
   sessionStorage.setItem('changeItemAddr', JSON.stringify(changeItemAddr))
   router.back()
 }
