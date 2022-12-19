@@ -152,6 +152,7 @@ const chooseAddr = (_idx) => {
       addresses: {}
     }
     temp.addresses[_idx] = cGoods.value[_idx].address
+    // 保存到sessionStorage
     sessionStorage.setItem('changeItemAddr', JSON.stringify([temp]))
   }
   router.push({
@@ -239,6 +240,10 @@ const confirm = () => {
 // 兑换操作
 const doEx = () => {
   // 判断是否可兑换
+  if (cardInfo.value.end_time * 1000 < new Date().getTime()) {
+    showFailToast('会员卡已过期')
+    return
+  }
   if (tip.value) {
     // 判断是否有地址
     if (cGoods.value.every((item) => item.address?.name)) {

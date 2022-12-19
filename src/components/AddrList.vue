@@ -91,6 +91,7 @@ const chooseAddress = (v) => {
   // console.log(changeItemAddr.find(item => item.packageId === _packageId))
   // 去除v.status
   const temp = { ...v }
+  delete temp.id
   delete temp.status
   changeItemAddr.find(item => item.packageId === _packageId).addresses[_idx] = temp
   sessionStorage.setItem('changeItemAddr', JSON.stringify(changeItemAddr))
