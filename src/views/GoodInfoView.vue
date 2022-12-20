@@ -205,6 +205,8 @@ const confirm = () => {
       receiver_county: address.county,
       receiver_town: address.town,
       receiver_address: address.address,
+      // TODO : 意法的直接付款
+      status: 1,
       Item: {
         // 套餐主信息
         product_id: info.value.id,
