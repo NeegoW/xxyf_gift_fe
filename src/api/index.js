@@ -32,7 +32,7 @@ api.interceptors.response.use(
     if (response.data?.code) {
       if (response.data.code !== 200) {
         showFailToast(response.data.msg)
-        return response.data
+        return Promise.reject(response.data)
       } else {
         return response.data
       }

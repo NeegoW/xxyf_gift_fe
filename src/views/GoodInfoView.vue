@@ -242,7 +242,7 @@ const confirm = () => {
 // 兑换操作
 const doEx = () => {
   // 判断是否可兑换
-  if (cardInfo.value.end_time * 1000 < new Date().getTime()) {
+  if (cardInfo.value.Active?.end_time * 1000 < new Date().getTime()) {
     showFailToast('会员卡已过期')
     return
   }
