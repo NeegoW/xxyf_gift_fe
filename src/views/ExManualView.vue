@@ -68,7 +68,7 @@
           </el-row>
           <el-row class="li">
             <el-col :span="1"><img class="icon" src="../assets/img/ex_info/金币.png" alt=""></el-col>
-            <el-col :span="23">全国配送 (内蒙古、新疆、西藏、港澳台及偏远地区除外)</el-col>
+            <el-col :span="23">全国配送 (内蒙古、新疆、西藏、甘肃、宁夏、青海、东北三省、港澳台及偏远地区除外)</el-col>
           </el-row>
         </div>
       </div>
